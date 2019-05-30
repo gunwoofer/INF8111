@@ -13,7 +13,6 @@ def getData(file, type_data='train'):
     with open(file, 'r') as csvFile:
         reader = csv.reader(csvFile)
         features = []
-        targets = []
         for i, row in enumerate(reader):
             if i != 0 : # On veut pas la ligne avec les titre de colonne
                 line = []
@@ -32,7 +31,6 @@ def getData(file, type_data='train'):
                 public_holiday = row[12]
                 station_code = row[13]
                 if type_data == 'train':
-                    withdrawals = row[14]
                     volume = row[15]
                 line.append(date)
                 line.append(temperature)
@@ -49,9 +47,9 @@ def getData(file, type_data='train'):
                 line.append(public_holiday)
                 line.append(station_code)
                 if type_data == 'train':
-                    targets.append(volume)
+                    line.append(volume)
                 features.append(np.array(line))
-    return np.array(features), np.array(targets)
+    return np.array(features)
 
 
 def writeCsv(test_date, predict_volume):
