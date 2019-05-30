@@ -16,8 +16,8 @@ import torch.nn.functional as F
 class BixiNetwork(nn.Module):
     def __init__(self):
         super(BixiNetwork, self).__init__()
-        self.fc1 = nn.Linear(14, 14)
-        self.fc5 = nn.Linear(14, 2)
+        self.fc1 = nn.Linear(9, 9)
+        self.fc5 = nn.Linear(9, 2)
 
     def forward(self, X):
         X = F.relu(self.fc1(X))

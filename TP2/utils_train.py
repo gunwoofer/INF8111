@@ -4,6 +4,7 @@ import torchvision
 from torch import nn
 from torch import optim
 
+criterion = nn.CrossEntropyLoss()
 
 def train(model, train_loader, optimizer):
     model.train()
@@ -12,7 +13,7 @@ def train(model, train_loader, optimizer):
         data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
         output = model(data)  # calls the forward function
-        loss = nn.CrossEntropyLoss()
+        loss = criterion(output, target)
         loss.backward()
         optimizer.step()
     return model
@@ -26,7 +27,7 @@ def valid(model, valid_loader):
         # data, target = Variable(data, volatile=True).cuda(), Variable(target).cuda() # if you have access to a gpu
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        valid_loss += nn.CrossEntropyLoss() # sum up batch loss
+        valid_loss += criterion(output, target) # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
@@ -45,7 +46,7 @@ def valid(model, valid_loader):
 #         # data, target = Variable(data, volatile=True).cuda(), Variable(target).cuda() # if you have access to a gpu
 #         data, target = Variable(data, volatile=True), Variable(target)
 #         output = model(data)
-#         test_loss += nn.CrossEntropyLoss()
+#         test_loss += criterion(output, target)
 #         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
 #         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
