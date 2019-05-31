@@ -15,9 +15,11 @@ def getData(file, type_data='train'):
         reader = csv.reader(csvFile)
         features = []
         targets = []
+        ids = []
         for i, row in enumerate(reader):
             if i != 0 : # On veut pas la ligne avec les titre de colonne
                 line = []
+                ids.append(row[0].replace(' ', '_') + "_" + row[13])
                 date = row[0]
                 temperature = pp.get_temperature(row[1])
                 drew_point = pp.get_drew_point(row[2])
@@ -51,13 +53,14 @@ def getData(file, type_data='train'):
                 if type_data == 'train':
                     targets.append(volume)
                 features.append(np.array(line))
-    return (np.array(features).astype('float'), np.array(targets).astype('float'))
+    return (np.array(features).astype('float'), np.array(targets).astype('float'), ids)
 
 
 def writeCsv(test_date, predict_volume):
     ids = pd.DataFrame(test_date).iloc[:,0]
     result = pd.DataFrame(predict_volume).iloc[:,0]
-    finalSubmit = pd.DataFrame(dict(IPERE = ids, D_Mode = result))
+    ids.drop_duplicates()
+    finalSubmit = pd.DataFrame(dict(id = ids, volume = result))
     finalSubmit.to_csv('submission/submission.csv', index=False)
 res = getData(TRAIN_FILE_NAME)
 test = 5
