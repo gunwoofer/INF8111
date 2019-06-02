@@ -42,19 +42,52 @@ test= pd.read_csv("data/test.csv")
 print(test.shape)
 test.head()
 X_train = reformat_data(train.iloc[:,1:6].values).astype('float32')
-y_train = train.iloc[:,15].values.astype('int32')
 X_train = update_median(X_train)
-# y_train = y_train[~np.isnan(X_train).any(axis=1)]
-# X_train = X_train[~np.isnan(X_train).any(axis=1)]
-y_train = y_train.reshape((len(y_train), 1))
-features = standardize(X_train)
 
-train_val = np.concatenate((features, y_train), axis=1)
+station_code = train.iloc[:, 13].values
+dic_station_code = dict.fromkeys(station_code.tolist(), 0)
+i = 1
+for key, value in dic_station_code.items():
+    dic_station_code[key] = i
+    i += 1
+station_code_one_hot = [[0] * i] * len(station_code) 
+list_one_hot = []
+for k in range (len(station_code)):
+    y = dic_station_code[station_code[k]]
+    one_hot = [0] * i
+    one_hot[y-1] = 1
+    # station_code_one_hot[k][y-1] = 1 
+    list_one_hot.append(one_hot)
+array_one_hot_station_code = np.array(list_one_hot)
+volume = train.iloc[:, 15].values
+
+train_x = np.concatenate((X_train, array_one_hot_station_code), axis=1)
 
 clf = DecisionTreeClassifier(random_state=0)
-clf.fit(X_train, y_train)
+clf.fit(train_x, volume)
 
 valid_pred = clf.predict(X_train)
-f_score = f1_score(y_train, valid_pred)
+f_score = f1_score(volume, valid_pred)
 print('fscore : ' + str(f_score))
+# plt.hist(volume, range = (0, 1), bins = 2, color = 'blue',
+#             edgecolor = 'red')
+# plt.xlabel('volume')
+# plt.ylabel('nb volume')
+# plt.title('Repartission des volumes')
+# plt.show()
 
+# a = []
+# for station in station_code:
+#     a.append(dic_station_code[station])
+# df = pd.DataFrame({'A': volume, 'B': a})
+
+# df[df['A']==1].hist('B', bins=189)
+# plt.xlabel('catégorie volume')
+# plt.ylabel('nb volume à 1')
+# plt.title('Repartition des volumes ayant une valeur de 1')
+# df[df['A']==0].hist('B', bins=189)
+# plt.xlabel('catégorie volume')
+# plt.ylabel('nb volume à 0')
+# plt.title('Repartission des volumes ayant une valeur de 0')
+
+# plt.show()
