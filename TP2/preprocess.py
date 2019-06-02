@@ -1,3 +1,5 @@
+import statistics as stats
+
 def get_temperature(temperature):
     if temperature == '':
         return -1000 # code erreur
@@ -54,3 +56,14 @@ def get_station_code(station_code):
         return -1000
     else:
         return int(station_code.replace(',','.'))
+
+def update_median(array):
+    liste = []
+    for val in array:
+        if val != -1000:
+            liste.append(val)
+    mediane = stats.median(liste)
+    for i in range(len(array)):
+        if array[i] == -1000:
+            array[i] = mediane
+    return array

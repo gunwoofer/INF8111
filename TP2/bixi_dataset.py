@@ -39,21 +39,27 @@ def getData(file, type_data='train'):
                 #line.append(date)
                 line.append(temperature)
                 line.append(drew_point)
-                line.append(relative_humidity)
-                line.append(wind_direction)
-                line.append(wind_speed)
-                line.append(visibility)
+                # line.append(relative_humidity)
+                # line.append(wind_direction)
+                # line.append(wind_speed)
+                # line.append(visibility)
                 #line.append(visibility_indicator)
-                line.append(pressure)
+                # line.append(pressure)
                 #line.append(hmdx)
                 #line.append(wind_chill)
                 #line.append(weather)
-                line.append(public_holiday)
-                line.append(station_code)
+                # line.append(public_holiday)
+                # line.append(station_code)
                 if type_data == 'train':
+                    # y = int(volume)
+                    # val_target= np.zeros(2)
+                    # val_target[y] = 1
                     targets.append(volume)
-                features.append(np.array(line))
-    return (np.array(features).astype('float'), np.array(targets).astype('float'), ids)
+                features.append(line)
+        if type_data == 'train':
+            for i in range(len(line)):
+                pp.update_median(features[:][i])
+    return (np.array(features), np.array(targets).astype('uint8'), ids)
 
 
 def writeCsv(test_date, predict_volume):
