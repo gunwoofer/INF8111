@@ -22,6 +22,8 @@ def getData(file, type_data='train'):
                 ids.append(row[0].replace(' ', '_') + "_" + row[13])
                 date = row[0]
                 temperature = pp.get_temperature(row[1])
+                month = int(date.split()[0].split('-')[1])
+                hour = int(date.split()[1].split(':')[0])
                 drew_point = pp.get_drew_point(row[2])
                 relative_humidity = pp.get_relative_humidity(row[3])
                 wind_direction = pp.get_wind_direction(row[4])
@@ -33,12 +35,12 @@ def getData(file, type_data='train'):
                 wind_chill = row[10]
                 weather = row[11]
                 public_holiday = pp.get_public_holiday(row[12])
-                station_code = pp.get_public_holiday(row[13])
+                station_code = row[13]
                 if type_data == 'train':
                     volume = row[15]
                 #line.append(date)
                 line.append(temperature)
-                line.append(drew_point)
+                #line.append(drew_point)
                 # line.append(relative_humidity)
                 # line.append(wind_direction)
                 # line.append(wind_speed)
@@ -49,17 +51,19 @@ def getData(file, type_data='train'):
                 #line.append(wind_chill)
                 #line.append(weather)
                 # line.append(public_holiday)
-                # line.append(station_code)
+                line.append(hour)
+                line.append(month)
+                line.append(station_code)
                 if type_data == 'train':
                     # y = int(volume)
                     # val_target= np.zeros(2)
                     # val_target[y] = 1
                     targets.append(volume)
                 features.append(line)
-        if type_data == 'train':
-            for i in range(len(line)):
-                pp.update_median(features[:][i])
-    return (np.array(features), np.array(targets).astype('uint8'), ids)
+        # if type_data == 'train':
+        #     for i in range(len(line)):
+        #         pp.update_median(features[:][i])
+    return (np.array(features).astype(np.float), np.array(targets).astype('uint8'), ids)
 
 
 def writeCsv(test_date, predict_volume):
@@ -70,3 +74,5 @@ def writeCsv(test_date, predict_volume):
     finalSubmit.to_csv('submission/submission.csv', index=False)
 res = getData(TRAIN_FILE_NAME)
 test = 5
+
+

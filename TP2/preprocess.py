@@ -1,4 +1,5 @@
 import statistics as stats
+import numpy as np
 
 def get_temperature(temperature):
     if temperature == '':
@@ -51,11 +52,22 @@ def get_public_holiday(public_holiday):
         return int(public_holiday.replace(',','.'))
 
 
+# Tableau de station de code
 def get_station_code(station_code):
-    if station_code == '':
-        return -1000
-    else:
-        return int(station_code.replace(',','.'))
+    dic_station_code = dict.fromkeys(station_code.tolist(), 0)
+    i = 1
+    for key, value in dic_station_code.items():
+        dic_station_code[key] = i
+        i += 1
+    station_code_one_hot = [[0] * i] * len(station_code) 
+    list_one_hot = []
+    for k in range (len(station_code)):
+        y = dic_station_code[station_code[k]]
+        one_hot = [0] * i
+        one_hot[y-1] = 1
+        # station_code_one_hot[k][y-1] = 1 
+        list_one_hot.append(one_hot)
+    return np.array(list_one_hot)
 
 def update_median(array):
     liste = []
