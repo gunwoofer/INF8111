@@ -1,12 +1,12 @@
 import bixi_dataset as ds
 import torch.nn.functional as F
 import random
+import os
 import numpy as np
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
-from torch import from_numpy
-from torch import mean, std
+from torch import mean, std, from_numpy, save, load
 from preprocess import get_station_code
 from bixi_network import BixiNetwork
 
@@ -42,25 +42,42 @@ def main():
     # On construit le modele
     model = BixiNetwork()
 
-    # Entrainement
-    print("Debut entrainement..")
-    best_precision = 0
-    optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
-    losses = []
-    for epoch in range(1, NB_EPOCH + 1):
-        model,loss = train(train_loader, model, optimizer)
-        losses.append(loss)
-        precision = valid(valid_loader, model)
-        if precision > best_precision:
-            best_precision = precision
-            best_model = model
+    # Load du modele pré entrainé si il existe
+    if (os.path.isfile("models/best_model.pth")):
+        print("Chargement du modele pré entrainé")
+        best_model = load("models/best_model.pth")
+    else:
+        # Sinon entrainement 
+        print("Debut entrainement..")
+        best_precision = 0
+        optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+        losses = []
+        for epoch in range(1, NB_EPOCH + 1):
+            model,loss = train(train_loader, model, optimizer)
+            losses.append(loss)
+            precision = valid(valid_loader, model)
+            if precision > best_precision:
+                best_precision = precision
+                best_model = model
     
+    # Sauvegarde du model (bug pour l'instant : supprimer le modele)
+    save(best_model.state_dict(), "models/best_model.pth")
+
     # On fait les predictions sur l'ensemble de test
     print("Prediction sur l'ensemble de test..")
+    best_model.eval()
     prediction = best_model(from_numpy(test_X))
+    prediction = prediction.detach().numpy().squeeze()
 
-    # breakpoint
-    test = 2
+    # On transforme les probabilités en 0 et 1
+    print("Transformation des proba en 0 et 1..")
+    prediction = proba2result(prediction)
+
+    # On écrit les resultats dans le csv de soumission
+    print("Ecriture des resultats dans le fichier de soumission..")
+    ds.writeCsv(id_test, prediction)
+
+    print("TERMINE")
 
 def train(train_loader, model, optimizer):
     model.train()
@@ -116,6 +133,10 @@ def normalize(X, x_min=-1, x_max=1):
     denom[denom==0] = 1
     return x_min + nom/denom 
 
+def proba2result(prediction):
+    prediction[prediction < 0.5] = 0
+    prediction[prediction >= 0.5] = 1
+    return prediction
 
 if __name__ == "__main__":
     main()

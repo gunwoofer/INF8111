@@ -71,7 +71,7 @@ def writeCsv(test_date, predict_volume):
     result = pd.DataFrame(predict_volume).iloc[:,0]
     ids.drop_duplicates()
     finalSubmit = pd.DataFrame(dict(id = ids, volume = result))
-    finalSubmit.to_csv('submission/submission.csv', index=False)
+    finalSubmit.to_csv('submission/submission-val.csv', index=False)
 res = getData(TRAIN_FILE_NAME)
 test = 5
 
