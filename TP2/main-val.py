@@ -9,6 +9,8 @@ from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
 from preprocess import get_station_code
 from bixi_network import BixiNetwork
+from keras.utils import to_categorical
+
 
 LEARNING_RATE = 0.01
 NB_EPOCH = 5
@@ -21,6 +23,10 @@ def main():
     # On recupere les donnees de test a predire
     print("Recuperation des donnees de test..")
     test_X, _, id_test = ds.getData(ds.TEST_FILE_NAME, type_data='test')
+
+    # Preprocessing
+    train_X = preprocessPipeline(train_X)
+    test_X = preprocessPipeline(test_X)
 
     # On divise en set de validation et d'entrainement
     print("Division du set d'entrainement en validation-entrainement..")
@@ -138,5 +144,16 @@ def proba2result(prediction):
     prediction[prediction >= 0.5] = 1
     return prediction
 
+def preprocessPipeline(data):
+    # Remplace les stations par des one hot vector
+    data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
+    return data
+    # Remplace l'heure et le mois par sin et cos (periodique)
+
+    # Remplace la meteo par des one hot vector
+
 if __name__ == "__main__":
     main()
+
+
+
