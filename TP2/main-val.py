@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code
+from preprocess import get_station_code, get_meteo
 from bixi_network import BixiNetwork
 from keras.utils import to_categorical
 
@@ -67,7 +67,7 @@ def main():
                 best_model = model
     
     # Sauvegarde du model (bug pour l'instant : supprimer le modele)
-    save(best_model.state_dict(), "models/best_model.pth")
+    # save(best_model.state_dict(), "models/best_model.pth")
 
     # On fait les predictions sur l'ensemble de test
     print("Prediction sur l'ensemble de test..")
@@ -140,13 +140,15 @@ def normalize(X, x_min=-1, x_max=1):
     return x_min + nom/denom 
 
 def proba2result(prediction):
-    prediction[prediction < 0.5] = 0
-    prediction[prediction >= 0.5] = 1
+    prediction[prediction <= 0.4] = 0
+    prediction[prediction > 0.4] = 1
     return prediction
 
 def preprocessPipeline(data):
     # Remplace les stations par des one hot vector
-    data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
+   # data = np.concatenate((data[:,:-1], get_station_code(data[:,4].astype('float'))), axis=1)
+    data = np.concatenate((data, get_meteo(data[:, 1])), axis=1)
+    np.delete(data, 1, 1)
     return data
     # Remplace l'heure et le mois par sin et cos (periodique)
 

@@ -49,7 +49,7 @@ def getData(file, type_data='train'):
                 # line.append(pressure)
                 # line.append(hmdx)
                 # line.append(wind_chill)
-                # line.append(weather)
+                line.append(weather)
                 # line.append(public_holiday)
                 line.append(hour)
                 line.append(month)
@@ -63,7 +63,7 @@ def getData(file, type_data='train'):
         # if type_data == 'train':
         #     for i in range(len(line)):
         #         pp.update_median(features[:][i])
-    return (np.array(features).astype(np.float), np.array(targets).astype('uint8'), ids)
+    return (np.array(features), np.array(targets).astype('uint8'), ids)
 
 
 def writeCsv(test_date, predict_volume):
