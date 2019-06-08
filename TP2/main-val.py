@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, get_meteo, categorizeTemperatures
+from preprocess import get_station_code, get_meteo, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
 from keras.utils import to_categorical
 
@@ -155,7 +155,10 @@ def preprocessPipeline(data):
     # data = np.concatenate((data, get_meteo(data[:, 1])), axis=1)
     # np.delete(data, 1, 1)
     
-    # TODO Remplace l'heure et le mois par sin et cos (periodique)
+    # TODO Remplace l'heure et le mois par des one hot vector
+    data = np.concatenate((data[:,1:], makeHotVector(data[:,0])), axis=1)
+    data = np.concatenate((data[:,1:], makeHotVector(data[:,0])), axis=1)
+    
     # TODO Remplace la meteo par des one hot vector
     return data
 

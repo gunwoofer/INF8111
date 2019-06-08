@@ -275,3 +275,10 @@ def categorizeTemperatures(temperatures):
         else:
             hotvec.append([0,0,1])
     return np.array(hotvec)
+
+
+
+def makeHotVector(vectors):
+    b = np.zeros((vectors.size, vectors.max()+1))
+    b[np.arange(vectors.size),vectors] = 1
+    return b

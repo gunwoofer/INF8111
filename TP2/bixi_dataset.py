@@ -49,7 +49,7 @@ def getData(file, type_data='train'):
                 # line.append(pressure)
                 # line.append(hmdx)
                 # line.append(wind_chill)
-                #line.append(weather)
+                # line.append(weather)
                 # line.append(public_holiday)
                 line.append(hour)
                 line.append(month)
