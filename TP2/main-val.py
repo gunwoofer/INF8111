@@ -10,6 +10,8 @@ from torch import mean, std, from_numpy, save, load
 from preprocess import get_station_code, get_meteo, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
 from keras.utils import to_categorical
+from sklearn.ensemble import RandomForestRegressor
+
 
 
 LEARNING_RATE = 0.01
@@ -46,7 +48,11 @@ def main():
     valid_loader = makeDataLoader(validation_X, validation_Y)
 
     # On construit le modele
-    model = BixiNetwork()
+    # model = BixiNetwork()
+    rf = RandomForestRegressor(n_estimators = 50, random_state = 42, verbose=True)
+    rf.fit(train_X, train_Y)
+    pred = rf.predict(test_X)
+    test = 2
 
     # Load du modele pré entrainé si il existe
     if (os.path.isfile("models/best_model.pth")):
