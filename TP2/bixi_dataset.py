@@ -53,6 +53,7 @@ def getData(file, type_data='train'):
                 line.append(hour)
                 line.append(month)
                 line.append(public_holiday)
+                line.append(weather)
                 # line.append(station_code)
                 if type_data == 'train':
                     # y = int(volume)
@@ -63,7 +64,7 @@ def getData(file, type_data='train'):
         # if type_data == 'train':
         #     for i in range(len(line)):
         #         pp.update_median(features[:][i])
-    return (np.array(features).astype(np.float), np.array(targets).astype('uint8'), ids)
+    return (np.array(features), np.array(targets).astype('uint8'), ids)
     
 
 

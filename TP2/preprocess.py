@@ -285,3 +285,44 @@ def makeHotVector(vectors):
 
 def findFreqStation(stations, labels):
     pass
+
+
+    
+def update_median(array):
+    col_median = np.nanmean(array, axis=0)
+    inds = np.where(np.isnan(array))
+    array[inds] = np.take(col_median, inds[1])
+    return array
+
+def standardize(x): 
+    mean_px = X_train.mean()
+    std_px = X_train.std()
+    return (x-mean_px)/std_px
+
+def reformat_data(x):
+    for i in range (x.shape[0]):
+        for j in range (x.shape[1]):
+            if x[i][j] == '':
+                x[i][j] = np.nan
+            else:
+                x[i][j] = float(str(x[i][j]).replace(',', '.'))
+    return x
+
+def get_meteo2(meteos):
+    y = [0] * 7
+    for meteo in meteos:
+        if "pluie" in meteo:
+            y[0] = 1
+        if "neige" in meteo:
+            y[1] = 1
+        if "Brouillard" in meteo:
+            y[2] = 1
+        if "Bruine" in meteo:
+            y[3] = 1
+        if "Nuageux" in meteo:
+            y[4] = 1
+        if "Orages" in meteo:
+            y[5] = 1
+        if "Dégagé" in meteo:
+            y[6] = 1
+    return y
