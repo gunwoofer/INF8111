@@ -53,7 +53,7 @@ def getData(file, type_data='train'):
                 # line.append(public_holiday)
                 line.append(hour)
                 line.append(month)
-                line.append(station_code)
+                # line.append(station_code)
                 if type_data == 'train':
                     # y = int(volume)
                     # val_target= np.zeros(2)

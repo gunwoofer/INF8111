@@ -13,7 +13,7 @@ from keras.utils import to_categorical
 
 
 LEARNING_RATE = 0.01
-NB_EPOCH = 5
+NB_EPOCH = 20
 
 def main():
     # On recupere les donnees d'entrainement
@@ -36,9 +36,9 @@ def main():
 
     # On normalise les données
     print("Normalisation des données..")
-    train_X = normalize(train_X)
-    validation_X = normalize(validation_X)
-    test_X = normalize(test_X)
+    # train_X = normalize(train_X)
+    # validation_X = normalize(validation_X)
+    # test_X = normalize(test_X)
 
     # On construit le loader avec 5% des 0
     print("Creation des Loader..")
@@ -122,7 +122,7 @@ def valid(valid_loader, model):
 def makeDataLoader(X, Y, train=False):
     # On retire beaucoup de 0
     data = []
-    ratio = 0.95
+    ratio = 0.9
     for i in range(len(X)):
         if (train and Y[i] == 0):
             rand = random.random()
@@ -140,13 +140,13 @@ def normalize(X, x_min=-1, x_max=1):
     return x_min + nom/denom 
 
 def proba2result(prediction):
-    prediction[prediction <= 0.4] = 0
-    prediction[prediction > 0.4] = 1
+    prediction[prediction <= 0.5] = 0
+    prediction[prediction > 0.5] = 1
     return prediction
 
 def preprocessPipeline(data):
     # Remplace les stations par des one hot vector
-    data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
+    # data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
 
     # Remplace la temperature par un hot vector d'intervalles
     data = np.concatenate((data[:,1:], categorizeTemperatures(data[:,0])), axis=1)
@@ -156,8 +156,8 @@ def preprocessPipeline(data):
     # np.delete(data, 1, 1)
     
     # TODO Remplace l'heure et le mois par des one hot vector
-    data = np.concatenate((data[:,1:], makeHotVector(data[:,0])), axis=1)
-    data = np.concatenate((data[:,1:], makeHotVector(data[:,0])), axis=1)
+    data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
+    data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
     
     # TODO Remplace la meteo par des one hot vector
     return data

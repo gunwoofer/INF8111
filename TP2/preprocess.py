@@ -279,6 +279,6 @@ def categorizeTemperatures(temperatures):
 
 
 def makeHotVector(vectors):
-    b = np.zeros((vectors.size, vectors.max()+1))
+    b = np.zeros((vectors.size, int(vectors.max()+1)))
     b[np.arange(vectors.size),vectors] = 1
     return b
