@@ -283,3 +283,5 @@ def makeHotVector(vectors):
     b[np.arange(vectors.size),vectors] = 1
     return b
 
+def findFreqStation(stations, labels):
+    pass
