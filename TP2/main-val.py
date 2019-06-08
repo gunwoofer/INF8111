@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, get_meteo
+from preprocess import get_station_code, get_meteo, categorizeTemperatures
 from bixi_network import BixiNetwork
 from keras.utils import to_categorical
 
@@ -146,13 +146,18 @@ def proba2result(prediction):
 
 def preprocessPipeline(data):
     # Remplace les stations par des one hot vector
-   # data = np.concatenate((data[:,:-1], get_station_code(data[:,4].astype('float'))), axis=1)
-    data = np.concatenate((data, get_meteo(data[:, 1])), axis=1)
-    np.delete(data, 1, 1)
-    return data
-    # Remplace l'heure et le mois par sin et cos (periodique)
+    data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
 
-    # Remplace la meteo par des one hot vector
+    # Remplace la temperature par un hot vector d'intervalles
+    data = np.concatenate((data[:,1:], categorizeTemperatures(data[:,0])), axis=1)
+    
+    # Meteo NLP
+    # data = np.concatenate((data, get_meteo(data[:, 1])), axis=1)
+    # np.delete(data, 1, 1)
+    
+    # TODO Remplace l'heure et le mois par sin et cos (periodique)
+    # TODO Remplace la meteo par des one hot vector
+    return data
 
 if __name__ == "__main__":
     main()

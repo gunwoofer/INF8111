@@ -16,7 +16,7 @@ import torch.nn.functional as F
 class BixiNetwork(nn.Module):
     def __init__(self):
         super(BixiNetwork, self).__init__()
-        self.fc1 = nn.Linear(186, 140)
+        self.fc1 = nn.Linear(188, 140)
         self.fc2 = nn.Linear(140, 85)
         self.fc3 = nn.Linear(85, 50)
         self.fc4 = nn.Linear(50, 10)
