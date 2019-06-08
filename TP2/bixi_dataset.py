@@ -50,9 +50,9 @@ def getData(file, type_data='train'):
                 # line.append(hmdx)
                 # line.append(wind_chill)
                 # line.append(weather)
-                # line.append(public_holiday)
                 line.append(hour)
                 line.append(month)
+                line.append(public_holiday)
                 # line.append(station_code)
                 if type_data == 'train':
                     # y = int(volume)

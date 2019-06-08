@@ -13,7 +13,7 @@ from keras.utils import to_categorical
 
 
 LEARNING_RATE = 0.01
-NB_EPOCH = 20
+NB_EPOCH = 10
 
 def main():
     # On recupere les donnees d'entrainement
@@ -35,7 +35,7 @@ def main():
     train_X, train_Y = train_X[:index], train_Y[:index]
 
     # On normalise les données
-    print("Normalisation des données..")
+    # print("Normalisation des données..")
     # train_X = normalize(train_X)
     # validation_X = normalize(validation_X)
     # test_X = normalize(test_X)
@@ -122,7 +122,7 @@ def valid(valid_loader, model):
 def makeDataLoader(X, Y, train=False):
     # On retire beaucoup de 0
     data = []
-    ratio = 0.9
+    ratio = 0.95
     for i in range(len(X)):
         if (train and Y[i] == 0):
             rand = random.random()
@@ -161,6 +161,8 @@ def preprocessPipeline(data):
     
     # TODO Remplace la meteo par des one hot vector
     return data
+
+
 
 if __name__ == "__main__":
     main()
