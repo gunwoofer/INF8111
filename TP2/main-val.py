@@ -7,20 +7,20 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, categorizeTemperatures, makeHotVector, categorizeDrewPoint
+from preprocess import get_station_code, categorizeTemperatures, makeHotVector, categorizeDrewPoint, get_month
 from bixi_network import BixiNetwork
-from sklearn.metrics import f1_score, fbeta_score, accuracy_score
+from sklearn.metrics import f1_score, fbeta_score, accuracy_score, classification_report, confusion_matrix  
 from sklearn.tree import DecisionTreeClassifier
 
 
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.1
 NB_EPOCH = 10
 
 def main():
     # On recupere les donnees d'entrainement
     print("Recuperation des donnees d'entrainement..")
     train_X, train_Y, id_train = ds.getData(ds.TRAIN_FILE_NAME)
-
+    print('nb de 1 : ' + str(train_Y.sum()))
     # On recupere les donnees de test a predire
     print("Recuperation des donnees de test..")
     test_X, _, id_test = ds.getData(ds.TEST_FILE_NAME, type_data='test')
@@ -40,28 +40,33 @@ def main():
 
     validation_X, validation_Y = train_X[index:], train_Y[index:]
     train_X, train_Y = train_X[:index], train_Y[:index]
-
+    validation_X, validation_Y = np.array(validation_X), np.array(validation_Y)
     # On normalise les données
     # print("Normalisation des données..")
     # train_X = normalize(train_X)
     # validation_X = normalize(validation_X)
     # test_X = normalize(test_X)
 
-    # print('arbre de decision')
-    # clf = DecisionTreeClassifier(random_state=0)
-    # clf.fit(train_X, train_Y)
+    print('arbre de decision')
+    print('entrainement sur ' + str(len(train_X)) + ' données')
+    clf = DecisionTreeClassifier(criterion="entropy", max_depth=3)
+    clf.fit(train_X, train_Y)
 
-    # print('debut prediction')
-    # valid_pred = clf.predict(train_X)
-    # valid_pred = proba2result(valid_pred).astype('uint8')
-    # f_score = f1_score(train_Y, valid_pred)
-    
-    # print('fscore arbre de decision (validation) : ' + str(f_score))
+    print('debut prediction')
+    valid_pred = clf.predict(validation_X)
+    valid_pred = proba2result(validation_Y).astype('uint8')
+    f_score = f1_score(validation_Y, valid_pred)
+    accuracy_arbre = accuracy_score(validation_Y, valid_pred)
+    print('fscore arbre de decision (validation) : ' + str(f_score))
+    print('accuracy arbre de decision (validation) : ' + str(accuracy_arbre))
+    print("on trouve " + str(valid_pred.sum()) + " valeur ayant une valeur de 1 sur " + str(len(valid_pred)) + " données")
+    print(confusion_matrix(validation_Y, valid_pred)) 
+    print(classification_report(validation_Y, valid_pred))  
 
-    # print('debut prediction')
-    # valid_pred = clf.predict(train_X)
-    # valid_pred = proba2result(valid_pred).astype('uint8')
-    # print('nb de 1 : ' + str(valid_pred.sum()))
+    print('debut prediction')
+    valid_pred = clf.predict(train_X)
+    valid_pred = proba2result(valid_pred).astype('uint8')
+    print('nb de 1 : ' + str(valid_pred.sum()))
 
     # On construit le loader avec 5% des 0
     print("Creation des Loader..")
@@ -126,6 +131,9 @@ def main():
     accuracy = accuracy_score(validation_Y, prediction_train)
     print('accuracy neural network final : ' + str(accuracy))
 
+    print(confusion_matrix(validation_Y, prediction_train)) 
+    print(classification_report(validation_Y, prediction_train))  
+
     prediction = best_model(from_numpy(test_X))
     prediction = prediction.detach().numpy().squeeze()
 
@@ -178,7 +186,7 @@ def valid(valid_loader, model):
 def makeDataLoader(X, Y, train=False):
     # On retire beaucoup de 0
     data = []
-    ratio = 0.93
+    ratio = 0.90
     for i in range(len(X)):
         if (train and Y[i] == 0):
             rand = random.random()
@@ -186,7 +194,8 @@ def makeDataLoader(X, Y, train=False):
                 data.append([X[i], Y[i]])
         else:
             data.append([X[i], Y[i]])
-    loader = DataLoader(data, shuffle=True, batch_size=4000)
+    print('nb feature reellement utilise : ' + str(len(data)))
+    loader = DataLoader(data, shuffle=True, batch_size=1000)
     return loader
 
 def normalize(X, x_min=-1, x_max=1):
@@ -213,8 +222,11 @@ def preprocessPipeline(data):
     
     # TODO Remplace l'heure et le mois par des one hot vector
     data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
-    data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
+    data = np.concatenate((data[:,1:], get_month(data[:,0].astype('uint'))), axis=1)
     data = np.concatenate((data[:,1:], categorizeDrewPoint(data[:,0])), axis=1)
+    data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
+
+    # data = np.concatenate((data[:,1:], get_station_code(data[:,0].astype('uint16'))), axis=1)
 
     # TODO Remplace la meteo par des one hot vector
     return data

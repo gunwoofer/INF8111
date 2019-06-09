@@ -1,6 +1,13 @@
 import statistics as stats
 import numpy as np
 
+
+import datetime
+import pandas as pd
+import numpy as np
+from sklearn.metrics import precision_score, recall_score, confusion_matrix, classification_report, accuracy_score, f1_score
+
+
 # import nltk
 # import math
 # from nltk.stem.snowball import SnowballStemmer
@@ -232,41 +239,41 @@ def get_public_holiday(public_holiday):
 
 # Tableau de station de code
 def get_station_code(station_code):
-    dic_station_code = dict.fromkeys(station_code.tolist(), 0)
-    i = 1
-    for key, value in dic_station_code.items():
-        dic_station_code[key] = i
-        i += 1
-    station_code_one_hot = [[0] * i] * len(station_code) 
-    list_one_hot = []
-    for k in range (len(station_code)):
-        y = dic_station_code[station_code[k]]
-        one_hot = [0] * i
-        one_hot[y-1] = 1
-        # station_code_one_hot[k][y-1] = 1 
-        list_one_hot.append(one_hot)
-    return np.array(list_one_hot)
-    # y = [0] * 20
-    # if station_code == 6184:
-    #     y[0] = 1
-    # if station_code == 6100:
-    #     y[1] = 1
-    # if station_code == 6214:
-    #     y[2] = 1
-    # if station_code == 6078:
-    #     y[3] = 1
-    # if station_code == 6221:
-    #     y[4] = 1
-    # if station_code == 6070:
-    #     y[5] = 1
-    # if station_code == 6026:
-    #     y[6] = 1
-    # if station_code == 6015:
-    #     y[7] = 1
-    # if station_code == 6136:
-    #     y[8] = 1
-    # if station_code == 6012:
-    #     y[9] = 1
+    # dic_station_code = dict.fromkeys(station_code.tolist(), 0)
+    # i = 1
+    # for key, value in dic_station_code.items():
+    #     dic_station_code[key] = i
+    #     i += 1
+    # station_code_one_hot = [[0] * i] * len(station_code) 
+    # list_one_hot = []
+    # for k in range (len(station_code)):
+    #     y = dic_station_code[station_code[k]]
+    #     one_hot = [0] * i
+    #     one_hot[y-1] = 1
+    #     # station_code_one_hot[k][y-1] = 1 
+    #     list_one_hot.append(one_hot)
+    # return np.array(list_one_hot)
+    y = [0] * 10
+    if station_code == 6184:
+        y[0] = 1
+    if station_code == 6100:
+        y[1] = 1
+    if station_code == 6214:
+        y[2] = 1
+    if station_code == 6078:
+        y[3] = 1
+    if station_code == 6221:
+        y[4] = 1
+    if station_code == 6070:
+        y[5] = 1
+    if station_code == 6026:
+        y[6] = 1
+    if station_code == 6015:
+        y[7] = 1
+    if station_code == 6136:
+        y[8] = 1
+    if station_code == 6012:
+        y[9] = 1
     # if station_code == 6036:
     #     y[10] = 1
     # if station_code == 6216:
@@ -287,7 +294,66 @@ def get_station_code(station_code):
     #     y[18] = 1
     # if station_code == 6064:
     #     y[19] = 1
-    # return y
+    # if station_code == 6052:
+    #     y[20] = 1
+    # if station_code == 6227:
+    #     y[21] == 1
+    # if station_code == 6248:
+    #     y[22] = 1
+    # if station_code == 6154:
+    #     y[23] = 1
+    # if station_code == 6748:
+    #     y[24] = 1
+    # if station_code == 6190:
+    #     y[25] = 1
+    # if station_code == 6155:
+    #     y[26] = 1
+    # if station_code == 6501:
+    #     y[27] = 1
+    # if station_code == 6073:
+    #     y[28] = 1
+    # if station_code == 6143:
+    #     y[29] = 1
+    # if station_code == 6250:
+    #     y[30] = 1
+    # if station_code == 6411:
+    #     y[31] = 1
+    # if station_code == 6114:
+    #     y[32] = 1
+    # if station_code == 6223:
+    #     y[34] = 1
+    # if station_code == 6729:
+    #     y[35] = 1
+    # if station_code == 6193:
+    #     y[36] = 1
+    # if station_code == 6165:
+    #     y[37] = 1
+    # if station_code == 6906:
+    #     y[38] = 1
+    # if station_code == 6046:
+    #     y[39] = 1
+    # if station_code == 6083:
+    #     y[40] = 1
+    # if station_code == 6199:
+    #     y[41] = 1
+    # if station_code == 6148:
+    #     y[42] = 1
+    # if station_code == 6023:
+    #     y[43] = 1
+    # if station_code == 6213:
+    #     y[44] = 1
+    # if station_code == 6209:
+    #     y[45] = 1
+    # if station_code == 6086:
+    #     y[46] = 1
+    # if station_code == 6063:
+    #     y[47] = 1
+    # if station_code == 6418:
+    #     y[48] = 1
+    # if station_code == 6194:
+    #     y[49] = 1
+
+    return y
 
 
 def categorizeTemperatures(temperatures):
@@ -359,7 +425,7 @@ def findFreqStation(stations, labels):
 #     return x
 
 def get_meteo2(meteo):
-    y = [0] * 7
+    y = [0] * 8
     if "pluie" in meteo:
         y[0] = 1
     if "neige" in meteo:
@@ -374,6 +440,8 @@ def get_meteo2(meteo):
         y[5] = 1
     if "gag" in meteo:
         y[6] = 1
+    if "ND" in meteo:
+        y[7] = 1
     return y
 
 

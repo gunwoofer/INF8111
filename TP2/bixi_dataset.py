@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import csv
 import preprocess as pp
+import datetime
 
 TRAIN_FILE_NAME = "data/training.csv"
 TEST_FILE_NAME = "data/test.csv"
@@ -22,6 +23,7 @@ def getData(file, type_data='train'):
                 line = []
                 ids.append(row[0].replace(' ', '_') + "_" + row[13])
                 date = row[0]
+                day = datetime.datetime.strptime(row[0], "%Y-%m-%d  %H:%M").weekday()
                 temperature = pp.get_temperature(row[1])
                 month = int(date.split()[0].split('-')[1])
                 hour = int(date.split()[1].split(':')[0])
@@ -36,7 +38,7 @@ def getData(file, type_data='train'):
                 wind_chill = row[10]
                 weather = pp.get_meteo2(row[11])
                 public_holiday = pp.get_public_holiday(row[12])
-                station_code = row[13] #pp.get_station_code(row[13])
+                station_code = pp.get_station_code(row[13])
                 if type_data == 'train':
                     volume = row[15]
                 #line.append(date)
@@ -53,6 +55,7 @@ def getData(file, type_data='train'):
                 line.append(hour)
                 line.append(month)
                 line.append(drew_point)
+                line.append(day)
                 # line.append(station_code)
 
                 line.append(public_holiday)
@@ -62,10 +65,10 @@ def getData(file, type_data='train'):
                 # for station in station_code:
                 #     line.append(station)
 
-                if month == 9 or month == 10 or month == 11:
-                    features.append(line)
-                    if type_data == 'train':
-                        targets.append(volume)
+                # if month == 9 or month == 10 or month == 11:
+                features.append(line)
+                if type_data == 'train':
+                    targets.append(volume)
     print('nb feature : ' + str(len(features)))
     return (np.array(features).astype('float'), np.array(targets).astype('uint8'), ids)
     
