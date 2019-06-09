@@ -279,12 +279,37 @@ def get_station_code(station_code):
 def categorizeTemperatures(temperatures):
     hotvec = []
     for temp in temperatures:
-        if temp < 20 :
-            hotvec.append([1,0,0])
-        elif temp > 20 and temp < 29.9:
-            hotvec.append([0,1,0])
-        else:
-            hotvec.append([0,0,1])
+        y = [0] * 14
+        if temp < 19 :
+            y[0] = 1
+        elif temp >= 19 and temp < 20:
+            y[1] = 1
+        elif temp >= 20 and temp < 21:
+            y[2] = 1
+        elif temp >= 21 and temp < 22:
+            y[3] = 1
+        elif temp >= 22 and temp < 23:
+            y[4] = 1
+        elif temp >= 23 and temp < 24:
+            y[5] = 1
+        elif temp >= 24 and temp < 25:
+            y[6] = 1
+        elif temp >= 25 and temp < 26:
+            y[7] = 1
+        elif temp >= 26 and temp < 27:
+            y[8] = 1
+        elif temp >= 27 and temp < 28:
+            y[9] = 1
+        elif temp >= 28 and temp < 29:
+            y[10] = 1
+        elif temp >= 29 and temp < 30:
+            y[11] = 1
+        elif temp >= 30 and temp < 31:
+            y[12] = 1
+        else :
+            y[13] = 1
+        hotvec.append(y)
+
     return np.array(hotvec)
 
 

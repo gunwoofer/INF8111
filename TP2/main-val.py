@@ -10,9 +10,10 @@ from torch import mean, std, from_numpy, save, load
 from preprocess import get_station_code, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
 from sklearn.metrics import f1_score, fbeta_score, accuracy_score
+from sklearn.tree import DecisionTreeClassifier
 
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.05
 NB_EPOCH = 10
 
 def main():
@@ -40,6 +41,22 @@ def main():
     # validation_X = normalize(validation_X)
     # test_X = normalize(test_X)
 
+    print('arbre de decision')
+    clf = DecisionTreeClassifier(random_state=0)
+    clf.fit(train_X, train_Y)
+
+    print('debut prediction')
+    valid_pred = clf.predict(train_X)
+    valid_pred = proba2result(valid_pred).astype('uint8')
+    f_score = f1_score(train_Y, valid_pred)
+    
+    print('fscore arbre de decision (validation) : ' + str(f_score))
+
+    print('debut prediction')
+    valid_pred = clf.predict(train_X)
+    valid_pred = proba2result(valid_pred).astype('uint8')
+    print('nb de 1 : ' + str(valid_pred.sum()))
+
     # On construit le loader avec 5% des 0
     print("Creation des Loader..")
     train_loader = makeDataLoader(train_X, train_Y, train=True)
@@ -55,15 +72,27 @@ def main():
     else:
         # Sinon entrainement 
         print("Debut entrainement..")
-        best_precision = 0
+        best_fscore = 0
         optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
         losses = []
         for epoch in range(1, NB_EPOCH + 1):
             model,loss = train(train_loader, model, optimizer)
             losses.append(loss)
-            precision = valid(valid_loader, model)
-            if precision > best_precision:
-                best_precision = precision
+
+            prediction_epoch = model(from_numpy(train_X))
+            prediction_epoch = prediction_epoch.detach().numpy().squeeze()
+            prediction_epoch = proba2result(prediction_epoch).astype('uint8')
+
+            f_score = f1_score(train_Y, prediction_epoch)
+            print('fscore neural network : ' + str(f_score))
+
+            accuracy = accuracy_score(train_Y, prediction_epoch)
+            print('accuracy beta neural network : ' + str(accuracy))
+
+            # valid(valid_loader, model)
+            if f_score > best_fscore:
+                print('mise a jour du meilleur model')
+                best_fscore = f_score
                 best_model = model
     
     # Sauvegarde du model (bug pour l'instant : supprimer le modele)
@@ -74,6 +103,7 @@ def main():
 
     # On fait les predictions sur l'ensemble de test
     print("Prediction sur l'ensemble de test..")
+    print("Best f_score : " + str(best_fscore))
     best_model.eval()
 
     ### Calcul du fscore
@@ -83,13 +113,11 @@ def main():
     prediction_train = proba2result(prediction_train).astype('uint8')
 
     f_score = f1_score(train_Y, prediction_train)
-    print('fscore neural network : ' + str(f_score))
-
-    f_score_beta = fbeta_score(train_Y, prediction_train, 1)
-    print('fscore beta neural network : ' + str(f_score_beta))
+    print('#####################################################"')
+    print('fscore neural network final : ' + str(f_score))
 
     accuracy = accuracy_score(train_Y, prediction_train)
-    print('accuracy beta neural network : ' + str(accuracy))
+    print('accuracy neural network final : ' + str(accuracy))
 
     prediction = best_model(from_numpy(test_X))
     prediction = prediction.detach().numpy().squeeze()
@@ -133,10 +161,10 @@ def valid(valid_loader, model):
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred).long()).cpu().sum()
 
-    valid_loss /= len(valid_loader.dataset)
-    print('\n' + "valid" + ' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        valid_loss, correct, len(valid_loader.dataset),
-        100. * correct / len(valid_loader.dataset)))
+    # valid_loss /= len(valid_loader.dataset)
+    # print('\n' + "valid" + ' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+    #     valid_loss, correct, len(valid_loader.dataset),
+    #     100. * correct / len(valid_loader.dataset)))
     return correct.item() / len(valid_loader.dataset)
 
 
@@ -161,8 +189,8 @@ def normalize(X, x_min=-1, x_max=1):
     return x_min + nom/denom 
 
 def proba2result(prediction):
-    prediction[prediction <= 0.8] = 0
-    prediction[prediction > 0.8] = 1
+    prediction[prediction <= 0.74] = 0
+    prediction[prediction > 0.74] = 1
     return prediction
 
 def preprocessPipeline(data):
