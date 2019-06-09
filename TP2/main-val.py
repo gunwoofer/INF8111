@@ -80,7 +80,7 @@ def main():
 
     prediction_train = best_model(from_numpy(train_X))
     prediction_train = prediction_train.detach().numpy().squeeze()
-    prediction_train = proba2result(prediction_train)
+    prediction_train = proba2result(prediction_train).astype('uint8')
 
     f_score = f1_score(train_Y, prediction_train)
     print('fscore neural network : ' + str(f_score))
@@ -96,11 +96,13 @@ def main():
 
     # On transforme les probabilités en 0 et 1
     print("Transformation des proba en 0 et 1..")
-    prediction = proba2result(prediction)
+    prediction = proba2result(prediction).astype('uint8')
+    print('nb de 1 dans la prediction : ' + str(prediction.sum()))
 
     # On écrit les resultats dans le csv de soumission
     print("Ecriture des resultats dans le fichier de soumission..")
-    ds.writeCsv(id_test, prediction.astype('uint8'))
+
+    ds.writeCsv(id_test, prediction)
 
     print("TERMINE")
 
@@ -159,8 +161,8 @@ def normalize(X, x_min=-1, x_max=1):
     return x_min + nom/denom 
 
 def proba2result(prediction):
-    prediction[prediction <= 0.5] = 0
-    prediction[prediction > 0.5] = 1
+    prediction[prediction <= 0.8] = 0
+    prediction[prediction > 0.8] = 1
     return prediction
 
 def preprocessPipeline(data):
