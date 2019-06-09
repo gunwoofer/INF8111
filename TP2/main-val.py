@@ -7,9 +7,9 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, get_meteo, categorizeTemperatures, makeHotVector
+from preprocess import get_station_code, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
-from keras.utils import to_categorical
+from sklearn.metrics import f1_score
 
 
 LEARNING_RATE = 0.01
@@ -69,9 +69,21 @@ def main():
     # Sauvegarde du model (bug pour l'instant : supprimer le modele)
     # save(best_model.state_dict(), "models/best_model.pth")
 
+
+
+
     # On fait les predictions sur l'ensemble de test
     print("Prediction sur l'ensemble de test..")
     best_model.eval()
+
+    ### Calcul du fscore
+
+    prediction_train = best_model(from_numpy(train_X))
+    prediction_train = prediction_train.detach().numpy().squeeze()
+    prediction_train = proba2result(prediction_train)
+
+    f_score = f1_score(train_Y, prediction_train)
+    print('fscore neural network : ' + str(f_score))
     prediction = best_model(from_numpy(test_X))
     prediction = prediction.detach().numpy().squeeze()
 
@@ -81,7 +93,7 @@ def main():
 
     # On écrit les resultats dans le csv de soumission
     print("Ecriture des resultats dans le fichier de soumission..")
-    ds.writeCsv(id_test, prediction)
+    ds.writeCsv(id_test, prediction.astype('uint8'))
 
     print("TERMINE")
 

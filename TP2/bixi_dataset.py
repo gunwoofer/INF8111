@@ -33,9 +33,9 @@ def getData(file, type_data='train'):
                 pressure = pp.get_pressure(row[8])
                 hmdx = row[9]
                 wind_chill = row[10]
-                weather = row[11]
+                weather = pp.get_meteo2(row[11])
                 public_holiday = pp.get_public_holiday(row[12])
-                station_code = row[13]
+                station_code = pp.get_station_code(row[13])
                 if type_data == 'train':
                     volume = row[15]
                 #line.append(date)
@@ -53,8 +53,13 @@ def getData(file, type_data='train'):
                 line.append(hour)
                 line.append(month)
                 line.append(public_holiday)
-                line.append(weather)
+                # for meteo in weather:
+                #     line.append(meteo)
+
                 # line.append(station_code)
+                # for station in station_code:
+                #     line.append(station)
+
                 if type_data == 'train':
                     # y = int(volume)
                     # val_target= np.zeros(2)
@@ -64,7 +69,7 @@ def getData(file, type_data='train'):
         # if type_data == 'train':
         #     for i in range(len(line)):
         #         pp.update_median(features[:][i])
-    return (np.array(features), np.array(targets).astype('uint8'), ids)
+    return (np.array(features).astype('float'), np.array(targets).astype('uint8'), ids)
     
 
 

@@ -232,38 +232,49 @@ def get_public_holiday(public_holiday):
 
 # Tableau de station de code
 def get_station_code(station_code):
-    dic_station_code = dict.fromkeys(station_code.tolist(), 0)
-    i = 1
-    for key, value in dic_station_code.items():
-        dic_station_code[key] = i
-        i += 1
-    station_code_one_hot = [[0] * i] * len(station_code) 
-    list_one_hot = []
-    for k in range (len(station_code)):
-        y = dic_station_code[station_code[k]]
-        one_hot = [0] * i
-        one_hot[y-1] = 1
-        # station_code_one_hot[k][y-1] = 1 
-        list_one_hot.append(one_hot)
-    return np.array(list_one_hot)
+    y = [0] * 20
+    if station_code == 6184:
+        y[0] = 1
+    if station_code == 6100:
+        y[1] = 1
+    if station_code == 6214:
+        y[2] = 1
+    if station_code == 6078:
+        y[3] = 1
+    if station_code == 6221:
+        y[4] = 1
+    if station_code == 6070:
+        y[5] = 1
+    if station_code == 6026:
+        y[6] = 1
+    if station_code == 6015:
+        y[7] = 1
+    if station_code == 6136:
+        y[8] = 1
+    if station_code == 6012:
+        y[9] = 1
+    if station_code == 6036:
+        y[10] = 1
+    if station_code == 6216:
+        y[11] = 1
+    if station_code == 6034:
+        y[12] = 1
+    if station_code == 6206:
+        y[13] = 1
+    if station_code == 6009:
+        y[14] = 1
+    if station_code == 6173:
+        y[15] = 1
+    if station_code == 6211:
+        y[16] = 1
+    if station_code == 6050:
+        y[17] = 1
+    if station_code == 6067:
+        y[18] = 1
+    if station_code == 6064:
+        y[19] = 1
+    return y
 
-def update_median(array):
-    liste = []
-    for val in array:
-        if val != -1000:
-            liste.append(val)
-    mediane = stats.median(liste)
-    for i in range(len(array)):
-        if array[i] == -1000:
-            array[i] = mediane
-    return array
-
-
-def get_meteo(meteos):
-    pipeline = PreprocessingPipeline(True, True)
-    bow = TFIDFBoW(pipeline, True, True)
-    result = bow.fit_transform(meteos)
-    return result
 
 def categorizeTemperatures(temperatures):
     hotvec = []
@@ -308,21 +319,20 @@ def reformat_data(x):
                 x[i][j] = float(str(x[i][j]).replace(',', '.'))
     return x
 
-def get_meteo2(meteos):
+def get_meteo2(meteo):
     y = [0] * 7
-    for meteo in meteos:
-        if "pluie" in meteo:
-            y[0] = 1
-        if "neige" in meteo:
-            y[1] = 1
-        if "Brouillard" in meteo:
-            y[2] = 1
-        if "Bruine" in meteo:
-            y[3] = 1
-        if "Nuageux" in meteo:
-            y[4] = 1
-        if "Orages" in meteo:
-            y[5] = 1
-        if "Dégagé" in meteo:
-            y[6] = 1
+    if "pluie" in meteo:
+        y[0] = 1
+    if "neige" in meteo:
+        y[1] = 1
+    if "Brouillard" in meteo or "brouillard" in meteo:
+        y[2] = 1
+    if "Bruine" in meteo or "bruine" in meteo:
+        y[3] = 1
+    if "Nuageux" in meteo or "nuageux" in meteo:
+        y[4] = 1
+    if "Orages" in meteo or "orages" in meteo:
+        y[5] = 1
+    if "gag" in meteo:
+        y[6] = 1
     return y
