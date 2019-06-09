@@ -7,10 +7,10 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, get_meteo, categorizeTemperatures, makeHotVector
+from preprocess import get_station_code, get_meteo2, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
 from keras.utils import to_categorical
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 
 
 
@@ -49,41 +49,42 @@ def main():
 
     # On construit le modele
     # model = BixiNetwork()
-    rf = RandomForestRegressor(n_estimators = 50, random_state = 42, verbose=True)
+    train_X, train_Y = deleteSomeZero(train_X, train_Y)
+    rf = RandomForestClassifier(n_estimators = 20, random_state = 42, verbose=True)
     rf.fit(train_X, train_Y)
-    pred = rf.predict(test_X)
-    test = 2
+    prediction = rf.predict(test_X)
+    # test = 2
 
-    # Load du modele pré entrainé si il existe
-    if (os.path.isfile("models/best_model.pth")):
-        print("Chargement du modele pré entrainé")
-        best_model = load("models/best_model.pth")
-    else:
-        # Sinon entrainement 
-        print("Debut entrainement..")
-        best_precision = 0
-        optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
-        losses = []
-        for epoch in range(1, NB_EPOCH + 1):
-            model,loss = train(train_loader, model, optimizer)
-            losses.append(loss)
-            precision = valid(valid_loader, model)
-            if precision > best_precision:
-                best_precision = precision
-                best_model = model
+    # # Load du modele pré entrainé si il existe
+    # if (os.path.isfile("models/best_model.pth")):
+    #     print("Chargement du modele pré entrainé")
+    #     best_model = load("models/best_model.pth")
+    # else:
+    #     # Sinon entrainement 
+    #     print("Debut entrainement..")
+    #     best_precision = 0
+    #     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+    #     losses = []
+    #     for epoch in range(1, NB_EPOCH + 1):
+    #         model,loss = train(train_loader, model, optimizer)
+    #         losses.append(loss)
+    #         precision = valid(valid_loader, model)
+    #         if precision > best_precision:
+    #             best_precision = precision
+    #             best_model = model
     
-    # Sauvegarde du model (bug pour l'instant : supprimer le modele)
-    # save(best_model.state_dict(), "models/best_model.pth")
+    # # Sauvegarde du model (bug pour l'instant : supprimer le modele)
+    # # save(best_model.state_dict(), "models/best_model.pth")
 
-    # On fait les predictions sur l'ensemble de test
-    print("Prediction sur l'ensemble de test..")
-    best_model.eval()
-    prediction = best_model(from_numpy(test_X))
-    prediction = prediction.detach().numpy().squeeze()
+    # # On fait les predictions sur l'ensemble de test
+    # print("Prediction sur l'ensemble de test..")
+    # best_model.eval()
+    # prediction = best_model(from_numpy(test_X))
+    # prediction = prediction.detach().numpy().squeeze()
 
-    # On transforme les probabilités en 0 et 1
-    print("Transformation des proba en 0 et 1..")
-    prediction = proba2result(prediction)
+    # # On transforme les probabilités en 0 et 1
+    # print("Transformation des proba en 0 et 1..")
+    # prediction = proba2result(prediction)
 
     # On écrit les resultats dans le csv de soumission
     print("Ecriture des resultats dans le fichier de soumission..")
@@ -128,7 +129,7 @@ def valid(valid_loader, model):
 def makeDataLoader(X, Y, train=False):
     # On retire beaucoup de 0
     data = []
-    ratio = 0.95
+    ratio = 0.99
     for i in range(len(X)):
         if (train and Y[i] == 0):
             rand = random.random()
@@ -138,6 +139,21 @@ def makeDataLoader(X, Y, train=False):
             data.append([X[i], Y[i]])
     loader = DataLoader(data, shuffle=True, batch_size=100)
     return loader
+
+def deleteSomeZero(X, Y):
+    x_ = []
+    y_ = []
+    ratio = 0.95
+    for i in range(len(X)):
+        if (Y[i] == 0):
+            rand = random.random()
+            if(rand > ratio):
+                x_.append(X[i])
+                y_.append(Y[i])
+        else:
+            x_.append(X[i])
+            y_.append(Y[i])
+    return (x_,y_)
 
 def normalize(X, x_min=-1, x_max=1):
     nom = (X-X.min(axis=0))*(x_max-x_min)
@@ -155,7 +171,7 @@ def preprocessPipeline(data):
     # data = np.concatenate((data[:,:-1], get_station_code(data[:,3])), axis=1)
 
     # Remplace la temperature par un hot vector d'intervalles
-    data = np.concatenate((data[:,1:], categorizeTemperatures(data[:,0])), axis=1)
+    data = np.concatenate((data[:,1:], categorizeTemperatures(data[:,0].astype('float'))), axis=1)
     
     # Meteo NLP
     # data = np.concatenate((data, get_meteo(data[:, 1])), axis=1)
@@ -164,9 +180,10 @@ def preprocessPipeline(data):
     # TODO Remplace l'heure et le mois par des one hot vector
     data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
     data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
+    data = np.concatenate((data[:,1:], get_meteo2(data[:,0].astype('str'))), axis=1)
     
     # TODO Remplace la meteo par des one hot vector
-    return data
+    return data.astype('uint8')
 
 
 

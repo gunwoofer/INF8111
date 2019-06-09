@@ -21,7 +21,7 @@ class BixiNetwork(nn.Module):
         # self.fc3 = nn.Linear(85, 50)
         # self.fc4 = nn.Linear(50, 10)
         # self.fc5 = nn.Linear(10, 1)
-        self.fc1 = nn.Linear(40, 20)
+        self.fc1 = nn.Linear(47, 20)
         self.fc2 = nn.Linear(20, 1)
         # self.fc3 = nn.Linear(17, 10)
         # self.fc4 = nn.Linear(10, 6)

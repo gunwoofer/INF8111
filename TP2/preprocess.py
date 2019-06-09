@@ -281,7 +281,7 @@ def categorizeTemperatures(temperatures):
 def makeHotVector(vectors):
     b = np.zeros((vectors.size, int(vectors.max()+1)))
     b[np.arange(vectors.size),vectors] = 1
-    return b
+    return b.astype('uint8')
 
 def findFreqStation(stations, labels):
     pass
@@ -309,8 +309,9 @@ def reformat_data(x):
     return x
 
 def get_meteo2(meteos):
-    y = [0] * 7
+    result = []
     for meteo in meteos:
+        y = [0] * 7
         if "pluie" in meteo:
             y[0] = 1
         if "neige" in meteo:
@@ -325,4 +326,5 @@ def get_meteo2(meteos):
             y[5] = 1
         if "Dégagé" in meteo:
             y[6] = 1
-    return y
+        result.append(y)
+    return np.array(result).astype('uint8')
