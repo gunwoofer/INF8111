@@ -232,62 +232,62 @@ def get_public_holiday(public_holiday):
 
 # Tableau de station de code
 def get_station_code(station_code):
-    # dic_station_code = dict.fromkeys(station_code.tolist(), 0)
-    # i = 1
-    # for key, value in dic_station_code.items():
-    #     dic_station_code[key] = i
-    #     i += 1
-    # station_code_one_hot = [[0] * i] * len(station_code) 
-    # list_one_hot = []
-    # for k in range (len(station_code)):
-    #     y = dic_station_code[station_code[k]]
-    #     one_hot = [0] * i
-    #     one_hot[y-1] = 1
-    #     # station_code_one_hot[k][y-1] = 1 
-    #     list_one_hot.append(one_hot)
-    # return np.array(list_one_hot)
-    y = [0] * 20
-    if station_code == 6184:
-        y[0] = 1
-    if station_code == 6100:
-        y[1] = 1
-    if station_code == 6214:
-        y[2] = 1
-    if station_code == 6078:
-        y[3] = 1
-    if station_code == 6221:
-        y[4] = 1
-    if station_code == 6070:
-        y[5] = 1
-    if station_code == 6026:
-        y[6] = 1
-    if station_code == 6015:
-        y[7] = 1
-    if station_code == 6136:
-        y[8] = 1
-    if station_code == 6012:
-        y[9] = 1
-    if station_code == 6036:
-        y[10] = 1
-    if station_code == 6216:
-        y[11] = 1
-    if station_code == 6034:
-        y[12] = 1
-    if station_code == 6206:
-        y[13] = 1
-    if station_code == 6009:
-        y[14] = 1
-    if station_code == 6173:
-        y[15] = 1
-    if station_code == 6211:
-        y[16] = 1
-    if station_code == 6050:
-        y[17] = 1
-    if station_code == 6067:
-        y[18] = 1
-    if station_code == 6064:
-        y[19] = 1
-    return y
+    dic_station_code = dict.fromkeys(station_code.tolist(), 0)
+    i = 1
+    for key, value in dic_station_code.items():
+        dic_station_code[key] = i
+        i += 1
+    station_code_one_hot = [[0] * i] * len(station_code) 
+    list_one_hot = []
+    for k in range (len(station_code)):
+        y = dic_station_code[station_code[k]]
+        one_hot = [0] * i
+        one_hot[y-1] = 1
+        # station_code_one_hot[k][y-1] = 1 
+        list_one_hot.append(one_hot)
+    return np.array(list_one_hot)
+    # y = [0] * 20
+    # if station_code == 6184:
+    #     y[0] = 1
+    # if station_code == 6100:
+    #     y[1] = 1
+    # if station_code == 6214:
+    #     y[2] = 1
+    # if station_code == 6078:
+    #     y[3] = 1
+    # if station_code == 6221:
+    #     y[4] = 1
+    # if station_code == 6070:
+    #     y[5] = 1
+    # if station_code == 6026:
+    #     y[6] = 1
+    # if station_code == 6015:
+    #     y[7] = 1
+    # if station_code == 6136:
+    #     y[8] = 1
+    # if station_code == 6012:
+    #     y[9] = 1
+    # if station_code == 6036:
+    #     y[10] = 1
+    # if station_code == 6216:
+    #     y[11] = 1
+    # if station_code == 6034:
+    #     y[12] = 1
+    # if station_code == 6206:
+    #     y[13] = 1
+    # if station_code == 6009:
+    #     y[14] = 1
+    # if station_code == 6173:
+    #     y[15] = 1
+    # if station_code == 6211:
+    #     y[16] = 1
+    # if station_code == 6050:
+    #     y[17] = 1
+    # if station_code == 6067:
+    #     y[18] = 1
+    # if station_code == 6064:
+    #     y[19] = 1
+    # return y
 
 
 def categorizeTemperatures(temperatures):
@@ -338,25 +338,25 @@ def findFreqStation(stations, labels):
 
 
     
-def update_median(array):
-    col_median = np.nanmean(array, axis=0)
-    inds = np.where(np.isnan(array))
-    array[inds] = np.take(col_median, inds[1])
-    return array
+# def update_median(array):
+#     col_median = np.nanmean(array, axis=0)
+#     inds = np.where(np.isnan(array))
+#     array[inds] = np.take(col_median, inds[1])
+#     return array
 
-def standardize(x): 
-    mean_px = X_train.mean()
-    std_px = X_train.std()
-    return (x-mean_px)/std_px
+# def standardize(x): 
+#     mean_px = X_train.mean()
+#     std_px = X_train.std()
+#     return (x-mean_px)/std_px
 
-def reformat_data(x):
-    for i in range (x.shape[0]):
-        for j in range (x.shape[1]):
-            if x[i][j] == '':
-                x[i][j] = np.nan
-            else:
-                x[i][j] = float(str(x[i][j]).replace(',', '.'))
-    return x
+# def reformat_data(x):
+#     for i in range (x.shape[0]):
+#         for j in range (x.shape[1]):
+#             if x[i][j] == '':
+#                 x[i][j] = np.nan
+#             else:
+#                 x[i][j] = float(str(x[i][j]).replace(',', '.'))
+#     return x
 
 def get_meteo2(meteo):
     y = [0] * 7
@@ -444,3 +444,16 @@ def categorizeDrewPoint(drewPoints):
         hotvec.append(y)
 
     return np.array(hotvec)
+
+def get_month(months):
+    result = []
+    for month in months:
+        y = [0] * 3
+        if month == 9:
+            y[0] = 1
+        elif month == 10:
+            y[1] = 1
+        elif month == 11:
+            y[2] = 2
+        result.append(y)
+    return result

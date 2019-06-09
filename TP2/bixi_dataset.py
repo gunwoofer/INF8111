@@ -11,6 +11,7 @@ TEST_FILE_NAME = "data/test.csv"
 
 
 def getData(file, type_data='train'):
+    print('obtenir les données de : ' + file)
     with open(file, 'r') as csvFile:
         reader = csv.reader(csvFile)
         features = []
@@ -35,7 +36,7 @@ def getData(file, type_data='train'):
                 wind_chill = row[10]
                 weather = pp.get_meteo2(row[11])
                 public_holiday = pp.get_public_holiday(row[12])
-                station_code = pp.get_station_code(row[13])
+                station_code = row[13] #pp.get_station_code(row[13])
                 if type_data == 'train':
                     volume = row[15]
                 #line.append(date)
@@ -52,24 +53,20 @@ def getData(file, type_data='train'):
                 line.append(hour)
                 line.append(month)
                 line.append(drew_point)
+                # line.append(station_code)
 
                 line.append(public_holiday)
                 for meteo in weather:
                     line.append(meteo)
 
-                # line.append(station_code)
-                for station in station_code:
-                    line.append(station)
+                # for station in station_code:
+                #     line.append(station)
 
-                if type_data == 'train':
-                    # y = int(volume)
-                    # val_target= np.zeros(2)
-                    # val_target[y] = 1
-                    targets.append(volume)
-                features.append(line)
-        # if type_data == 'train':
-        #     for i in range(len(line)):
-        #         pp.update_median(features[:][i])
+                if month == 9 or month == 10 or month == 11:
+                    features.append(line)
+                    if type_data == 'train':
+                        targets.append(volume)
+    print('nb feature : ' + str(len(features)))
     return (np.array(features).astype('float'), np.array(targets).astype('uint8'), ids)
     
 
@@ -80,7 +77,6 @@ def writeCsv(test_date, predict_volume):
     ids.drop_duplicates()
     finalSubmit = pd.DataFrame(dict(id = ids, volume = result))
     finalSubmit.to_csv('submission/submission-val.csv', index=False)
-res = getData(TRAIN_FILE_NAME)
-test = 5
+
 
 
