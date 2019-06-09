@@ -232,6 +232,20 @@ def get_public_holiday(public_holiday):
 
 # Tableau de station de code
 def get_station_code(station_code):
+    # dic_station_code = dict.fromkeys(station_code.tolist(), 0)
+    # i = 1
+    # for key, value in dic_station_code.items():
+    #     dic_station_code[key] = i
+    #     i += 1
+    # station_code_one_hot = [[0] * i] * len(station_code) 
+    # list_one_hot = []
+    # for k in range (len(station_code)):
+    #     y = dic_station_code[station_code[k]]
+    #     one_hot = [0] * i
+    #     one_hot[y-1] = 1
+    #     # station_code_one_hot[k][y-1] = 1 
+    #     list_one_hot.append(one_hot)
+    # return np.array(list_one_hot)
     y = [0] * 20
     if station_code == 6184:
         y[0] = 1
@@ -361,3 +375,72 @@ def get_meteo2(meteo):
     if "gag" in meteo:
         y[6] = 1
     return y
+
+
+def categorizeDrewPoint(drewPoints):
+    hotvec = []
+    for temp in drewPoints:
+        y = [0] * 29 # de -5 à 23
+        if temp < -5 :
+            y[0] = 1
+        elif temp >= -5 and temp < -4:
+            y[1] = 1
+        elif temp >= -4 and temp < -3:
+            y[2] = 1
+        elif temp >= -3 and temp < -2:
+            y[3] = 1
+        elif temp >= -2 and temp < -1:
+            y[4] = 1
+        elif temp >= -1 and temp < 0:
+            y[5] = 1
+        elif temp >= 0 and temp < 1:
+            y[6] = 1
+        elif temp >= 1 and temp < 2:
+            y[7] = 1
+        elif temp >= 2 and temp < 3:
+            y[8] = 1
+        elif temp >= 3 and temp < 4:
+            y[9] = 1
+        elif temp >= 4 and temp < 5:
+            y[10] = 1
+        elif temp >= 5 and temp < 6:
+            y[11] = 1
+        elif temp >= 6 and temp < 7:
+            y[12] = 1
+        elif temp >= 7 and temp < 8:
+            y[13] = 1
+        elif temp >= 8 and temp < 9:
+            y[14] = 1
+        elif temp >= 9 and temp < 10:
+            y[15] = 1
+        elif temp >= 10 and temp < 11:
+            y[16] = 1
+        elif temp >= 11 and temp < 12:
+            y[17] = 1
+        elif temp >= 12 and temp < 13:
+            y[18] = 1
+        elif temp >= 13 and temp < 14:
+            y[19] = 1
+        elif temp >= 14 and temp < 15:
+            y[20] = 1
+        elif temp >= 15 and temp < 16:
+            y[21] = 1
+        elif temp >= 16 and temp < 17:
+            y[22] = 1
+        elif temp >= 17 and temp < 18:
+            y[23] = 1
+        elif temp >= 18 and temp < 19:
+            y[24] = 1
+        elif temp >= 19 and temp < 20:
+            y[25] = 1
+        elif temp >= 20 and temp < 21:
+            y[26] = 1
+        elif temp >= 21 and temp < 22:
+            y[27] = 1
+        elif temp >= 22 and temp < 23:
+            y[28] = 1
+        else :
+            y[0] = 1
+        hotvec.append(y)
+
+    return np.array(hotvec)

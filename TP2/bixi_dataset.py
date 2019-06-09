@@ -40,7 +40,6 @@ def getData(file, type_data='train'):
                     volume = row[15]
                 #line.append(date)
                 line.append(temperature)
-                # line.append(drew_point)
                 # line.append(relative_humidity)
                 # line.append(wind_direction)
                 # line.append(wind_speed)
@@ -52,6 +51,8 @@ def getData(file, type_data='train'):
                 # line.append(weather)
                 line.append(hour)
                 line.append(month)
+                line.append(drew_point)
+
                 line.append(public_holiday)
                 for meteo in weather:
                     line.append(meteo)

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
-from preprocess import get_station_code, categorizeTemperatures, makeHotVector
+from preprocess import get_station_code, categorizeTemperatures, makeHotVector, categorizeDrewPoint
 from bixi_network import BixiNetwork
 from sklearn.metrics import f1_score, fbeta_score, accuracy_score
 from sklearn.tree import DecisionTreeClassifier
@@ -32,6 +32,12 @@ def main():
     # On divise en set de validation et d'entrainement
     print("Division du set d'entrainement en validation-entrainement..")
     index = int(0.6 * train_X.shape[0])
+
+    shuf = list(zip(train_X, train_Y))
+    random.shuffle(shuf)
+
+    train_X, train_Y = zip(*shuf)
+
     validation_X, validation_Y = train_X[index:], train_Y[index:]
     train_X, train_Y = train_X[:index], train_Y[:index]
 
@@ -41,21 +47,21 @@ def main():
     # validation_X = normalize(validation_X)
     # test_X = normalize(test_X)
 
-    print('arbre de decision')
-    clf = DecisionTreeClassifier(random_state=0)
-    clf.fit(train_X, train_Y)
+    # print('arbre de decision')
+    # clf = DecisionTreeClassifier(random_state=0)
+    # clf.fit(train_X, train_Y)
 
-    print('debut prediction')
-    valid_pred = clf.predict(train_X)
-    valid_pred = proba2result(valid_pred).astype('uint8')
-    f_score = f1_score(train_Y, valid_pred)
+    # print('debut prediction')
+    # valid_pred = clf.predict(train_X)
+    # valid_pred = proba2result(valid_pred).astype('uint8')
+    # f_score = f1_score(train_Y, valid_pred)
     
-    print('fscore arbre de decision (validation) : ' + str(f_score))
+    # print('fscore arbre de decision (validation) : ' + str(f_score))
 
-    print('debut prediction')
-    valid_pred = clf.predict(train_X)
-    valid_pred = proba2result(valid_pred).astype('uint8')
-    print('nb de 1 : ' + str(valid_pred.sum()))
+    # print('debut prediction')
+    # valid_pred = clf.predict(train_X)
+    # valid_pred = proba2result(valid_pred).astype('uint8')
+    # print('nb de 1 : ' + str(valid_pred.sum()))
 
     # On construit le loader avec 5% des 0
     print("Creation des Loader..")
@@ -79,14 +85,14 @@ def main():
             model,loss = train(train_loader, model, optimizer)
             losses.append(loss)
 
-            prediction_epoch = model(from_numpy(train_X))
+            prediction_epoch = model(from_numpy(np.array(validation_X)))
             prediction_epoch = prediction_epoch.detach().numpy().squeeze()
             prediction_epoch = proba2result(prediction_epoch).astype('uint8')
 
-            f_score = f1_score(train_Y, prediction_epoch)
+            f_score = f1_score(validation_Y, prediction_epoch)
             print('fscore neural network : ' + str(f_score))
 
-            accuracy = accuracy_score(train_Y, prediction_epoch)
+            accuracy = accuracy_score(validation_Y, prediction_epoch)
             print('accuracy beta neural network : ' + str(accuracy))
 
             # valid(valid_loader, model)
@@ -108,15 +114,16 @@ def main():
 
     ### Calcul du fscore
 
-    prediction_train = best_model(from_numpy(train_X))
+
+    prediction_train = best_model(from_numpy(np.array(validation_X)))
     prediction_train = prediction_train.detach().numpy().squeeze()
     prediction_train = proba2result(prediction_train).astype('uint8')
 
-    f_score = f1_score(train_Y, prediction_train)
+    f_score = f1_score(validation_Y, prediction_train)
     print('#####################################################"')
     print('fscore neural network final : ' + str(f_score))
 
-    accuracy = accuracy_score(train_Y, prediction_train)
+    accuracy = accuracy_score(validation_Y, prediction_train)
     print('accuracy neural network final : ' + str(accuracy))
 
     prediction = best_model(from_numpy(test_X))
@@ -171,7 +178,7 @@ def valid(valid_loader, model):
 def makeDataLoader(X, Y, train=False):
     # On retire beaucoup de 0
     data = []
-    ratio = 0.95
+    ratio = 0.93
     for i in range(len(X)):
         if (train and Y[i] == 0):
             rand = random.random()
@@ -179,7 +186,7 @@ def makeDataLoader(X, Y, train=False):
                 data.append([X[i], Y[i]])
         else:
             data.append([X[i], Y[i]])
-    loader = DataLoader(data, shuffle=True, batch_size=100)
+    loader = DataLoader(data, shuffle=True, batch_size=4000)
     return loader
 
 def normalize(X, x_min=-1, x_max=1):
@@ -207,7 +214,8 @@ def preprocessPipeline(data):
     # TODO Remplace l'heure et le mois par des one hot vector
     data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
     data = np.concatenate((data[:,1:], makeHotVector(data[:,0].astype('uint'))), axis=1)
-    
+    data = np.concatenate((data[:,1:], categorizeDrewPoint(data[:,0])), axis=1)
+
     # TODO Remplace la meteo par des one hot vector
     return data
 
