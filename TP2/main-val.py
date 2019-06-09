@@ -9,7 +9,7 @@ from torch.optim import Adam
 from torch import mean, std, from_numpy, save, load
 from preprocess import get_station_code, categorizeTemperatures, makeHotVector
 from bixi_network import BixiNetwork
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, fbeta_score, accuracy_score
 
 
 LEARNING_RATE = 0.01
@@ -84,6 +84,13 @@ def main():
 
     f_score = f1_score(train_Y, prediction_train)
     print('fscore neural network : ' + str(f_score))
+
+    f_score_beta = fbeta_score(train_Y, prediction_train, 1)
+    print('fscore beta neural network : ' + str(f_score_beta))
+
+    accuracy = accuracy_score(train_Y, prediction_train)
+    print('accuracy beta neural network : ' + str(accuracy))
+
     prediction = best_model(from_numpy(test_X))
     prediction = prediction.detach().numpy().squeeze()
 
