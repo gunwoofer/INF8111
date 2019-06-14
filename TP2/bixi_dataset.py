@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import csv
 import preprocess as pp
+import datetime
 
 TRAIN_FILE_NAME = "data/training.csv"
 TEST_FILE_NAME = "data/test.csv"
@@ -11,6 +12,7 @@ TEST_FILE_NAME = "data/test.csv"
 
 
 def getData(file, type_data='train'):
+    print('obtenir les données de : ' + file)
     with open(file, 'r') as csvFile:
         reader = csv.reader(csvFile)
         features = []
@@ -21,6 +23,7 @@ def getData(file, type_data='train'):
                 line = []
                 ids.append(row[0].replace(' ', '_') + "_" + row[13])
                 date = row[0]
+                day = datetime.datetime.strptime(row[0], "%Y-%m-%d  %H:%M").weekday()
                 temperature = pp.get_temperature(row[1])
                 month = int(date.split()[0].split('-')[1])
                 hour = int(date.split()[1].split(':')[0])
@@ -33,14 +36,13 @@ def getData(file, type_data='train'):
                 pressure = pp.get_pressure(row[8])
                 hmdx = row[9]
                 wind_chill = row[10]
-                weather = row[11]
+                weather = pp.get_meteo2(row[11])
                 public_holiday = pp.get_public_holiday(row[12])
-                station_code = row[13]
+                station_code = pp.get_station_code(row[13])
                 if type_data == 'train':
                     volume = row[15]
                 #line.append(date)
                 line.append(temperature)
-                # line.append(drew_point)
                 # line.append(relative_humidity)
                 # line.append(wind_direction)
                 # line.append(wind_speed)
@@ -52,19 +54,28 @@ def getData(file, type_data='train'):
                 # line.append(weather)
                 line.append(hour)
                 line.append(month)
+<<<<<<< HEAD
                 line.append(weather)
                 line.append(public_holiday)
+=======
+                line.append(drew_point)
+                line.append(day)
+>>>>>>> 97784138a91cfe97e78c87c21ec7f17073e77008
                 # line.append(station_code)
-                if type_data == 'train':
-                    # y = int(volume)
-                    # val_target= np.zeros(2)
-                    # val_target[y] = 1
-                    targets.append(volume)
+
+                line.append(public_holiday)
+                for meteo in weather:
+                    line.append(meteo)
+
+                # for station in station_code:
+                #     line.append(station)
+
+                # if month == 9 or month == 10 or month == 11:
                 features.append(line)
-        # if type_data == 'train':
-        #     for i in range(len(line)):
-        #         pp.update_median(features[:][i])
-    return (np.array(features), np.array(targets).astype('uint8'), ids)
+                if type_data == 'train':
+                    targets.append(volume)
+    print('nb feature : ' + str(len(features)))
+    return (np.array(features).astype('float'), np.array(targets).astype('uint8'), ids)
     
 
 
@@ -74,7 +85,6 @@ def writeCsv(test_date, predict_volume):
     ids.drop_duplicates()
     finalSubmit = pd.DataFrame(dict(id = ids, volume = result))
     finalSubmit.to_csv('submission/submission-val.csv', index=False)
-res = getData(TRAIN_FILE_NAME)
-test = 5
+
 
 
